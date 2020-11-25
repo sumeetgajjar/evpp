@@ -7,6 +7,10 @@ if (UNIX)
         set(CMAKE_BUILD_TYPE "Release")
     endif()
 
+    set(CMAKE_CXX_STANDARD 17)
+    set(CMAKE_C_COMPILER gcc-7)
+    set(CMAKE_CXX_COMPILER g++-7)
+
     set (CXX_FLAGS
          -g
          -fPIC
@@ -24,7 +28,6 @@ if (UNIX)
          -fms-extensions
          -Wfloat-equal
          -Wextra
-         -std=c++11
     )
     include_directories (${PROJECT_SOURCE_DIR}
                          ${PROJECT_SOURCE_DIR}/3rdparty)
@@ -44,12 +47,15 @@ endif (UNIX)
 
 string (REPLACE ";" " " CMAKE_CXX_FLAGS "${CXX_FLAGS}")
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+find_package(glog 0.4.0 REQUIRED)
+
 if (UNIX)
     SET(CMAKE_CXX_FLAGS_DEBUG   "-O0 -g -ggdb -D_DEBUG -DGOOGLE_STRIP_LOG=0")
     SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -g -ggdb -DNDEBUG -DGOOGLE_STRIP_LOG=1")
-    SET(DEPENDENT_LIBRARIES event glog pthread)
+    SET(DEPENDENT_LIBRARIES event glog::glog pthread)
 else (UNIX)
-    SET(DEPENDENT_LIBRARIES event glog)
+    SET(DEPENDENT_LIBRARIES event glog::glog)
 endif (UNIX)
 
 if (CMAKE_BENCHMARK_TESTING)
@@ -67,6 +73,7 @@ message (STATUS "This is SOURCE dir " ${PROJECT_SOURCE_DIR})
 message (STATUS "CMAKE_CXX_FLAGS " ${CMAKE_CXX_FLAGS})
 message (STATUS "EXECUTABLE_OUTPUT_PATH " ${EXECUTABLE_OUTPUT_PATH})
 message (STATUS "LIBRARY_OUTPUT_PATH " ${LIBRARY_OUTPUT_PATH})
+message (STATUS "CMAKE_MODULE_PATH " ${CMAKE_MODULE_PATH})
 
 add_subdirectory (evpp)
 add_subdirectory (apps)
@@ -76,7 +83,6 @@ if (NOT EVPP_VCPKG_BUILD)
     add_subdirectory (benchmark)
 endif ()
 
-set (CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 include (utils)
 include (packages)
 
